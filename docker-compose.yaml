@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  cogward-camera-action:
+    container_name: cogward-camera-action
+    image: hossay/camera-action:latest
+    ports:
+      - 7070:7070
+      - 9080:8080
+      - 9081:8081
+      - 8501:8501 # dashboard
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=1
+    command: sh -c scripts/start_torch_serve.sh ; scripts/start_dashboard.sh
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  cogward-camera-detection:
+    container_name: cogward-camera-detection
+    image: hossay/camera-detection:latest
+    ports:
+      - 9898:9898
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=1
+    command: python3 darknet_server.py
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  camera-monitor:
+    container_name: cogward-camera-monitor-room${ROOM_NUMBER}
+    image: hossay/camera-monitor:latest
+    command: python run.py --room ${ROOM_NUMBER}
+    restart: on-failure
+    depends_on:
+      - cogward-camera-detection
+      - cogward-camera-action
