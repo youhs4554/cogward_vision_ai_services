@@ -1,4 +1,4 @@
-## 스마병실(Cogward) vision AI 서비스 컨테이너
+## 스마트병실(Cogward) vision AI 서비스 컨테이너
 
 ![cogward_demo_gif](media/cogward_demo.gif)
 
